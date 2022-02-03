@@ -138,7 +138,7 @@ api_error_type tdh_mem_range_block(page_info_api_input_t page_info, uint64_t tdr
  *
  * @return Success or Error type
  */
-api_error_type tdh_key_config(uint64_t tdr_pa);
+api_error_type tdh_mng_key_config(uint64_t tdr_pa);
 
 
 /**

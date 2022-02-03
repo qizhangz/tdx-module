@@ -1,4 +1,4 @@
-// Intel Proprietary 
+// Intel Proprietary
 // 
 // Copyright 2021 Intel Corporation All Rights Reserved.
 // 
@@ -26,7 +26,7 @@
 typedef struct
 {
     uint32_t header;
-    uint32_t header_lenght;
+    uint32_t header_length;
     uint32_t header_version;
     uint32_t module_type;
     uint32_t module_vendor;

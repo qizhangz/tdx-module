@@ -17,5 +17,5 @@
 
 void __wrap___stack_chk_fail(void)
 {
-    tdx_sanity_check(true, SCEC_CANARY_CORRUPT_SOURCE, 0);
+    tdx_sanity_check(false, SCEC_CANARY_CORRUPT_SOURCE, 0);
 }

@@ -122,11 +122,7 @@ _STATIC_INLINE_ bool_t is_private_hkid(uint16_t hkid)
 
 _STATIC_INLINE_ bool_t is_pa_smaller_than_max_pa(uint64_t pa)
 {
-#if defined(SPR_BUILD)
     return (pa < BIT(MAX_PA));
-#else
-    return (pa < BIT(get_global_data()->max_pa));
-#endif
 }
 
 _STATIC_INLINE_ bool_t is_valid_integer_range(uint64_t base, uint64_t size)
@@ -1039,7 +1035,7 @@ _STATIC_INLINE_ bool_t adjust_tlb_tracking_state(tdcs_t* tdcs_ptr, tdvps_t* tdvp
              *  beginning of TDHVPENTER.
              *  Flush the TLB context and extended paging structure (EPxE) caches
              *  associated with the current TD.
-	         *  Else, no need to flush, since this LP should not to hold any
+	         *  Else, no need to flush, since this LP is guaranteed not to hold any
              *  address translation for this VCPU
              */
             ept_descriptor_t ept_desc = {.ept = tdcs_ptr->executions_ctl_fields.eptp.raw, .reserved = 0};

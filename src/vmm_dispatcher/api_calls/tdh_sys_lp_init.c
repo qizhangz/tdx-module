@@ -437,7 +437,7 @@ api_error_type tdh_sys_lp_init(void)
     }
     tdx_local_data_ptr->single_step_def_state.lfsr_value = lfsr_value;
 
-    /* Do a global EPT flush.  This is required to help ensure security in case of
+    /* Do a global EPT flush.  This is required to guarantee security in case of
        a TDX-SEAM module update. */
     const ept_descriptor_t zero_descriptor = { 0 };
     ia32_invept(&zero_descriptor, INVEPT_TYPE_2);

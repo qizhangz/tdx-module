@@ -1,5 +1,7 @@
 # TDX
 
+[Build Instructions](./BUILD.md) 
+
 Trust Domain Extensions (TDX)  is introducing new, architectural elements to help deploy hardware-isolated, virtual machines (VMs) called trust domains (TDs). Intel TDX is designed to isolate VMs from the virtual-machine manager (VMM)/hypervisor and any other non-TD software on the platform to protect TDs from a broad range of software. These hardware-isolated TDs include:
 
 1. Secure-Arbitration Mode (SEAM) – an extension to Virtual Machines Extension (VMX) architecture to define a new VMX root mode called SEAM root. This SEAM root mode is used to host a CPU-attested module to create virtual machine (VM) guests called Trust Domains (TD).

@@ -222,7 +222,6 @@ _STATIC_INLINE_ api_error_type check_and_store_smrr_smrr2(tdx_module_global_t* t
 
 _STATIC_INLINE_ api_error_type check_key_management_config(tdx_module_global_t* tdx_global_data_ptr)
 {
-
     tdx_global_data_ptr->plt_common_config.ia32_tme_capability.raw = ia32_rdmsr(IA32_TME_CAPABILITY_MSR_ADDR);
     tdx_global_data_ptr->plt_common_config.ia32_tme_activate.raw = ia32_rdmsr(IA32_TME_ACTIVATE_MSR_ADDR);
 
@@ -233,19 +232,11 @@ _STATIC_INLINE_ api_error_type check_key_management_config(tdx_module_global_t* 
         return api_error_with_operand_id(TDX_INCORRECT_MSR_VALUE, msr_addr);
     }
 
-#if defined(SPR_BUILD)
     tdx_global_data_ptr->hkid_start_bit = (uint32_t)(MAX_PA -
             (uint64_t)tdx_global_data_ptr->plt_common_config.ia32_tme_activate.mk_tme_keyid_bits);
 
     tdx_global_data_ptr->hkid_mask = BITS(MAX_PA - 1,
                                           tdx_global_data_ptr->hkid_start_bit);
-#else
-    tdx_global_data_ptr->hkid_start_bit = (uint32_t)(tdx_global_data_ptr->max_pa -
-                (uint64_t)tdx_global_data_ptr->plt_common_config.ia32_tme_activate.mk_tme_keyid_bits);
-
-    tdx_global_data_ptr->hkid_mask = BITS(tdx_global_data_ptr->max_pa - 1,
-                                           tdx_global_data_ptr->hkid_start_bit);
-#endif
 
     tdx_global_data_ptr->plt_common_config.ia32_tme_keyid_partitioning.raw =
             ia32_rdmsr(IA32_MKTME_KEYID_PARTITIONING_MSR_ADDR);
@@ -294,7 +285,6 @@ _STATIC_INLINE_ api_error_type check_cpuid_configurations(tdx_module_global_t* g
     bool_t core_level_scanned = false;
     uint32_t shift_count = (uint32_t)-1; //Initialized to invalid value.
     uint32_t prev_level_type = LEVEL_TYPE_INVALID;
-
     fms_info_t fms;
 
     global_data_ptr->xfd_faulting_mask = 0; // Updated later per CPUID leaf 0xD
@@ -321,6 +311,19 @@ _STATIC_INLINE_ api_error_type check_cpuid_configurations(tdx_module_global_t* g
             tdx_local_data_ptr->vmm_regs.r8 = cpuid_lookup[i].verify_mask.high;
             tdx_local_data_ptr->vmm_regs.r9 = cpuid_lookup[i].verify_value.low;
             tdx_local_data_ptr->vmm_regs.r10 = cpuid_lookup[i].verify_value.high;
+
+            TDX_ERROR("CPUID 0x%x.0x%x doesn't match expected value!\n",
+                    cpuid_config.leaf_subleaf.leaf, cpuid_config.leaf_subleaf.subleaf);
+            TDX_ERROR("Verify mask: EAX = 0x%lx, EBX = 0x%lx, ECX = 0x%lx, EDX = 0x%lx\n",
+                    cpuid_lookup[i].verify_mask.eax, cpuid_lookup[i].verify_mask.ebx,
+                    cpuid_lookup[i].verify_mask.ecx, cpuid_lookup[i].verify_mask.edx);
+            TDX_ERROR("Verify value: EAX = 0x%lx, EBX = 0x%lx, ECX = 0x%lx, EDX = 0x%lx\n",
+                    cpuid_lookup[i].verify_value.eax, cpuid_lookup[i].verify_value.ebx,
+                    cpuid_lookup[i].verify_value.ecx, cpuid_lookup[i].verify_value.edx);
+            TDX_ERROR("Platform value: EAX = 0x%lx, EBX = 0x%lx, ECX = 0x%lx, EDX = 0x%lx\n",
+                    cpuid_config.values.eax, cpuid_config.values.ebx,
+                    cpuid_config.values.ecx, cpuid_config.values.edx);
+
             return TDX_INCORRECT_CPUID_VALUE;
         }
 
@@ -337,7 +340,6 @@ _STATIC_INLINE_ api_error_type check_cpuid_configurations(tdx_module_global_t* g
             {
                 return api_error_with_operand_id(TDX_CPUID_LEAF_NOT_SUPPORTED, CPUID_MIN_LAST_CPU_BASE_LEAF);
             }
-
             global_data_ptr->cpuid_last_base_leaf = CPUID_LAST_BASE_LEAF;
         }
         /* CPUID Leaf 1 is a special case.  The Stepping ID field, returned in RAX
@@ -371,6 +373,12 @@ _STATIC_INLINE_ api_error_type check_cpuid_configurations(tdx_module_global_t* g
         */
         else if (leaf == CPUID_EXT_FEATURES_LEAF && subleaf == CPUID_EXT_FEATURES_SUBLEAF)
         {
+            // Check the number of supported sub-leaves
+            if ((cpuid_config.values.eax < 1) || (cpuid_config.values.eax > 2))
+            {
+                return api_error_with_operand_id(TDX_CPUID_MAX_SUBLEAVES_UNRECOGNIZED, CPUID_EXT_FEATURES_LEAF);
+            }
+
             global_data_ptr->waitpkg_supported = (cpuid_config.values.ecx & BIT(CPUID_WAITPKG_BIT)) != 0;
         }
 
@@ -444,7 +452,7 @@ _STATIC_INLINE_ api_error_type check_cpuid_configurations(tdx_module_global_t* g
                     ((uint64_t)cpuid_config.values.ecx * (uint64_t)cpuid_config.values.ebx) /
                      (uint64_t)cpuid_config.values.eax;
 
-            // Sanity check on native TSC frequency, to help ensure no overflow when TSC virtualization
+            // Sanity check on native TSC frequency, to guarantee no overflow when TSC virtualization
             // params are calculated.
             if (global_data_ptr->native_tsc_frequency < NATIVE_TSC_FREQUENCY_MIN)
             {
@@ -454,7 +462,6 @@ _STATIC_INLINE_ api_error_type check_cpuid_configurations(tdx_module_global_t* g
 
 
         }
-
         else if (leaf == CPUID_LBR_CAPABILITIES_LEAF)
         {
             uint32_t cpuid_1c_eax;
@@ -577,15 +584,10 @@ _STATIC_INLINE_ api_error_type check_cpuid_configurations(tdx_module_global_t* g
         }
         else if (cpuid_config.leaf_subleaf.leaf == CPUID_GET_MAX_PA_LEAF)
         {
-
-            global_data_ptr->max_pa = (uint64_t)cpuid_config.values.eax & CPUID_MAX_PA_BITS;
-#if defined(SPR_BUILD)
             global_data_ptr->max_pa = MAX_PA;
-#endif
         }
 
         global_data_ptr->cpuid_values[i] = cpuid_config;
-
     }
 
     return TDX_SUCCESS;
@@ -619,13 +621,8 @@ _STATIC_INLINE_ bool_t check_cmrs()
 
             // CMR ranges should be within the boundaries of the physical address range.
             // taking into account MAX_PA and HKID partitioning (HKID bits must be 0).
-#if defined(SPR_BUILD)
             if ((cmr_area_end > BIT(MAX_PA)) || ((cmr_area_end & tdx_global_data_ptr->hkid_mask) != 0) ||
                     ((cmr_area_start & tdx_global_data_ptr->hkid_mask) != 0))
-#else
-            if ((cmr_area_end > BIT(tdx_global_data_ptr->max_pa)) || ((cmr_area_end & tdx_global_data_ptr->hkid_mask) != 0) ||
-                ((cmr_area_start & tdx_global_data_ptr->hkid_mask) != 0))
-#endif
             {
                 return false;
             }

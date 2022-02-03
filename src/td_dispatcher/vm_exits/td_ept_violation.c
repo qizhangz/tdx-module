@@ -55,11 +55,7 @@ void td_ept_violation_exit(vmx_exit_qualification_t exit_qualification, vm_vmexi
     // Special treatment for GPAW==0 (i.e., SHARED bit is bit 47) and MAX_PA > 48.
     // If any GPA bit between the SHARED bit and bit (MAX_PA-1) is set,
     // and there is a valid guest linear address, morph the EPT_VIOLATION into a #PF exception.
-#if defined(SPR_BUILD)
     if (are_gpa_bits_above_shared_set(gpa.raw, gpaw, MAX_PA) &&
-#else
-    if (are_gpa_bits_above_shared_set(gpa.raw, gpaw, get_global_data()->max_pa) &&
-#endif
         exit_qualification.ept_violation.gla_valid)
     {
         // Morph into a #PF(PFEC.RSVD=1)

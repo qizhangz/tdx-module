@@ -91,6 +91,7 @@ api_error_type tdh_mr_finalize(uint64_t target_tdr_pa)
     }
 
     load_xmms_from_buffer(xmms);
+    basic_memset_to_zero(xmms, sizeof(xmms));
 
     tdcs_ptr->management_fields.finalized = true;
 

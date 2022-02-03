@@ -168,9 +168,9 @@ void tdx_vmm_dispatcher(void)
         local_data->vmm_regs.rax = tdh_mem_range_block(page_info, local_data->vmm_regs.rdx);
         break;
     }
-    case TDH_KEY_CONFIG_LEAF:
+    case TDH_MNG_KEY_CONFIG_LEAF:
     {
-        local_data->vmm_regs.rax = tdh_key_config(local_data->vmm_regs.rcx);
+        local_data->vmm_regs.rax = tdh_mng_key_config(local_data->vmm_regs.rcx);
         break;
     }
     case TDH_MNG_CREATE_LEAF:
@@ -405,7 +405,7 @@ EXIT:
 }
 
 
-__attribute__ ((noinline)) void tdx_vmm_post_dispatching(void)
+void tdx_vmm_post_dispatching(void)
 {
 
     advance_guest_rip();

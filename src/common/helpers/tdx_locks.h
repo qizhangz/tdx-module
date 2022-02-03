@@ -102,7 +102,7 @@ typedef union ALIGN(2)
     uint16_t raw;
 } sharex_lock_t;
 
-#define SHAREX_FULL_COUNTER  0x7FFF
+#define SHAREX_FULL_COUNTER_NO_WRITER  0xFFFE
 
 _STATIC_INLINE_ lock_return_t acquire_sharex_lock_sh(sharex_lock_t * lock_ptr)
 {
@@ -112,8 +112,8 @@ _STATIC_INLINE_ lock_return_t acquire_sharex_lock_sh(sharex_lock_t * lock_ptr)
 
     retval.raw = _lock_xadd_16b(&lock_ptr->raw, 2);
 
-    // Check that we don't overflow the counter
-    tdx_sanity_check((retval.counter != SHAREX_FULL_COUNTER), SCEC_LOCK_SOURCE, 1);
+    // Check that we don't overflow the counter when only readers are on the lock
+    tdx_sanity_check((retval.raw != SHAREX_FULL_COUNTER_NO_WRITER), SCEC_LOCK_SOURCE, 1);
 
     return (retval.exclusive == 0) ? LOCK_RET_SUCCESS : LOCK_RET_FAIL;
 }

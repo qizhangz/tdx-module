@@ -29,7 +29,7 @@ static void load_xmms_by_mask(tdvps_t* tdvps_ptr, uint16_t xmm_select)
 {
     uint128_t xmms[16];
 
-    basic_memset_to_zero(xmms, sizeof(uint128_t) * 16);
+    basic_memset_to_zero(xmms, sizeof(xmms));
 
     // Copy the guest TD XMM's that should be passed to the VMM, otherwise they will be zeroed
     for (uint32_t i = 0; i < 16; i++)
@@ -41,6 +41,7 @@ static void load_xmms_by_mask(tdvps_t* tdvps_ptr, uint16_t xmm_select)
     }
 
     load_xmms_from_buffer(xmms);
+    basic_memset_to_zero(xmms, sizeof(xmms));
 }
 
 static void init_all_dr_opt(tdvps_t* tdvps_ptr)

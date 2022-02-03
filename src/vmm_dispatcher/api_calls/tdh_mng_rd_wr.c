@@ -576,7 +576,8 @@ static api_error_type tdh_mng_rd_wr(uint64_t target_tdr_pa, uint64_t requested_f
         // Check that previous value has the expected value
         if (prev_value != rd_value)
         {
-            return api_error_with_operand_id(TDX_OPERAND_BUSY, OPERAND_ID_RDX);
+            return_val = api_error_with_operand_id(TDX_OPERAND_BUSY, OPERAND_ID_RDX);
+            goto EXIT;
         }
     }
     else //Read

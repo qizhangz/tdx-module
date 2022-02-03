@@ -232,6 +232,7 @@ api_error_type tdh_mem_page_add(page_info_api_input_t gpa_page_info,
     }
 
     load_xmms_from_buffer(xmms);
+    basic_memset_to_zero(xmms, sizeof(xmms));
 
     // Increment TDR child count
     tdr_ptr->management_fields.chldcnt++;

@@ -24,7 +24,7 @@
 #include "accessors/data_accessors.h"
 
 
-_STATIC_INLINE_ api_error_type tdh_mem_sept_rd_wr(page_info_api_input_t gpa_page_info, uint64_t target_tdr_pa, bool_t is_wr, uint64_t new_sept_value)
+api_error_type tdh_mem_sept_rd(page_info_api_input_t gpa_page_info, uint64_t target_tdr_pa)
 {
     // Local data for return values
     tdx_module_local_t  * local_data_ptr = get_local_data();
@@ -44,9 +44,6 @@ _STATIC_INLINE_ api_error_type tdh_mem_sept_rd_wr(page_info_api_input_t gpa_page
     ia32e_sept_t          sept_entry_copy;              // Cached SEPT entry of the page
     ept_level_t           sept_level_entry = gpa_mappings.level; // SEPT entry level of the page
     bool_t                sept_locked_flag = false;     // Indicate SEPT is locked
-
-    UNUSED(new_sept_value);
-    UNUSED(is_wr);
 
     api_error_type        return_val = UNINITIALIZE_ERROR;
 
@@ -108,7 +105,6 @@ _STATIC_INLINE_ api_error_type tdh_mem_sept_rd_wr(page_info_api_input_t gpa_page
         goto EXIT;
     }
 
-
     // Check GPA, lock SEPT and walk to find entry
     return_val = lock_sept_check_and_walk_private_gpa(tdcs_ptr,
                                                       OPERAND_ID_RCX,
@@ -153,12 +149,3 @@ EXIT:
 
     return return_val;
 }
-
-api_error_type tdh_mem_sept_rd(page_info_api_input_t gpa_page_info, uint64_t target_tdr_pa)
-{
-    return tdh_mem_sept_rd_wr(gpa_page_info, target_tdr_pa, false, 0);
-}
-
-
-
-

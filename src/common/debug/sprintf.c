@@ -121,8 +121,13 @@ static uint64_t print_dec(char* buf_ptr,
 {
     int32_t digits, i;
     uint64_t write_count = 0;
+    //char* buf_ptr = *buf_ptr_ptr;
 
     unsigned long long pot10[20];
+
+    // This is not the best way to do this but non-local data is not yet
+    // supported in this environment. Therefore, it must be built on each
+    // call to this routine.
 
     pot10[0] = 1;
     for( i = 1; i < 20; i++ )

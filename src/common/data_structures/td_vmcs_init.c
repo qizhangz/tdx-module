@@ -56,34 +56,36 @@ const vmcs_fields_info_t vmcs_init_map[] = {
         {.encoding = VMX_GUEST_PDPTR2_FULL_ENCODE, .value = (uint64_t)-1},
         {.encoding = VMX_GUEST_PDPTR3_FULL_ENCODE, .value = (uint64_t)-1},
 
-         // Controls for APIC Virtualization
-         {.encoding = VMX_VIRTUAL_APIC_ACCESS_PAGE_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
-         {.encoding = VMX_POSTED_INTERRUPT_NOTIFICATION_VECTOR_ENCODE, .value = 0xFFFFULL},
-         {.encoding = VMX_POSTED_INTERRUPT_DESCRIPTOR_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
+        // Controls for APIC Virtualization
+        {.encoding = VMX_VIRTUAL_APIC_ACCESS_PAGE_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
+        {.encoding = VMX_POSTED_INTERRUPT_NOTIFICATION_VECTOR_ENCODE, .value = 0xFFFFULL},
+        {.encoding = VMX_POSTED_INTERRUPT_DESCRIPTOR_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
 
-         // VM-Execution Control
-         {.encoding = VMX_EXCEPTION_BITMAP_ENCODE, .value = BIT(18)}, // Bit 18 (MCE) is set to 1
-         {.encoding = VMX_IO_BITMAP_A_PHYPTR_FULL_ENCODE, .value = (uint64_t)-1},
-         {.encoding = VMX_IO_BITMAP_B_PHYPTR_FULL_ENCODE, .value = (uint64_t)-1},
 
-         {.encoding = VMX_EPTP_LIST_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
-         {.encoding = VMX_VMREAD_BITMAP_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
-         {.encoding = VMX_VMWRITE_BITMAP_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
-         {.encoding = VMX_ENCLS_EXIT_CONTROL_FULL_ENCODE, .value = (BIT(63) - BIT(0) + BIT(63))},
-         {.encoding = VMX_ENCLV_EXIT_CONTROL_FULL_ENCODE, .value = (BIT(63) - BIT(0) + BIT(63))},
 
-         {.encoding = VMX_PML_LOG_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
-         {.encoding = VMX_PCONFIG_EXITING_FULL_ENCODE, .value = (BIT(63) - BIT(0) + BIT(63))},
+        // VM-Execution Control
+        {.encoding = VMX_EXCEPTION_BITMAP_ENCODE, .value = BIT(18)}, // Bit 18 (MCE) is set to 1
+        {.encoding = VMX_IO_BITMAP_A_PHYPTR_FULL_ENCODE, .value = (uint64_t)-1},
+        {.encoding = VMX_IO_BITMAP_B_PHYPTR_FULL_ENCODE, .value = (uint64_t)-1},
 
-         // VM-Exit Controls
-         {.encoding = VMX_VM_EXIT_CONTROL_ENCODE, .value = VM_EXIT_CONTROL_FIXED_VALUES},
+        {.encoding = VMX_EPTP_LIST_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
+        {.encoding = VMX_VMREAD_BITMAP_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
+        {.encoding = VMX_VMWRITE_BITMAP_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
+        {.encoding = VMX_ENCLS_EXIT_CONTROL_FULL_ENCODE, .value = (BIT(63) - BIT(0) + BIT(63))},
+        {.encoding = VMX_ENCLV_EXIT_CONTROL_FULL_ENCODE, .value = (BIT(63) - BIT(0) + BIT(63))},
 
-         // VM-Exit Controls for MSRs
-         {.encoding = VMX_EXIT_MSR_STORE_PHYPTR_FULL_ENCODE, .value = (uint64_t)-1},
-         {.encoding = VMX_EXIT_MSR_LOAD_PHYPTR_FULL_ENCODE, .value = (uint64_t)-1},
+        {.encoding = VMX_PML_LOG_ADDRESS_FULL_ENCODE, .value = (uint64_t)-1},
+        {.encoding = VMX_PCONFIG_EXITING_FULL_ENCODE, .value = (BIT(63) - BIT(0) + BIT(63))},
 
-         // VM-Entry Controls
-         {.encoding = VMX_ENTRY_MSR_LOAD_PHYPTR_FULL_ENCODE, .value = (uint64_t)-1},
+        // VM-Exit Controls
+        {.encoding = VMX_VM_EXIT_CONTROL_ENCODE, .value = VM_EXIT_CONTROL_FIXED_VALUES},
+
+        // VM-Exit Controls for MSRs
+        {.encoding = VMX_EXIT_MSR_STORE_PHYPTR_FULL_ENCODE, .value = (uint64_t)-1},
+        {.encoding = VMX_EXIT_MSR_LOAD_PHYPTR_FULL_ENCODE, .value = (uint64_t)-1},
+
+        // VM-Entry Controls
+        {.encoding = VMX_ENTRY_MSR_LOAD_PHYPTR_FULL_ENCODE, .value = (uint64_t)-1},
 
         {.encoding = (uint64_t)-1, .value = 0} // indicates last index
 };
@@ -274,11 +276,10 @@ void init_td_vmcs(tdcs_t * tdcs_ptr, tdvps_t* tdvps_ptr, vmcs_host_values_t* hos
     /** CR4 Guest/Host Mask
      * Bits MCE (6), VMXE (13) and SMXE (14) are always set to 1
      * Bit PKE (22) is set to ~TDCS.XFAM[9]
-     * If TDCS.XFAM[12:11] is 11, then bit CET (23) is cleared to 0.  Otherwise, bit CET (23) is set to 1
-     * Bit UINT (25) is set ~TDCS.XFAM[14], to intercept writes to CR4 if ULI is not enabled
-     * Bit PKE (19) is set if KeyLocker is not enabled
-     * Bit PKE (8) is set if KeyLocker PKS not enabled
-     * Bit PCE (8) is set to ~TDCS.ATTRIBUTES.PERFMON, to intercept writes to CR4 if Perfmon is not enabled
+     * bit CET (23) is cleared to 0 if TDCS.XFAM[12:11] is 11. Otherwise, bit CET (23) is set to 1
+     * Bit UINT (25) is set ~TDCS.XFAM[14] if ULI is not enabled
+     * Bit KL (19) is set to ~TDCS.ATTRIBUTES.KL if KeyLocker is not enabled.
+     * Bit PKS (24) is set to ~TDCS.ATTRIBUTES.PKS if PKS is not enabled.
      * Any bit set to 1 in IA32_VMX_CR4_FIXED0 is set to 1
      * Any bit set to 0 in IA32_VMX_CR4_FIXED1 is set to 1
      * Reserved bits (15 and 63-26) are set to 1
@@ -308,10 +309,6 @@ void init_td_vmcs(tdcs_t * tdcs_ptr, tdvps_t* tdvps_ptr, vmcs_host_values_t* hos
     {
         bitmap |= BIT(24);
     }
-    if (tdcs_ptr->executions_ctl_fields.attributes.perfmon == 0)
-    {
-        bitmap |= BIT(8);
-    }
 
     ia32_vmwrite(VMX_CR4_GUEST_HOST_MASK_ENCODE, bitmap);
 
@@ -329,6 +326,5 @@ void init_td_vmcs(tdcs_t * tdcs_ptr, tdvps_t* tdvps_ptr, vmcs_host_values_t* hos
      * Set by TDX-SEAM on TDHVPINIT to the sequential index of the VCPU
      */
     ia32_vmwrite(VMX_GUEST_VPID_ENCODE, tdvps_ptr->management.vcpu_index + 1);
-
 }
 

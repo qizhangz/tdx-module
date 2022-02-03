@@ -183,6 +183,7 @@ api_error_type tdh_mr_extend(uint64_t target_page_gpa, uint64_t target_tdr_pa)
     }
 
     load_xmms_from_buffer(xmms);
+    basic_memset_to_zero(xmms, sizeof(xmms));
 
     return_val = TDX_SUCCESS;
 

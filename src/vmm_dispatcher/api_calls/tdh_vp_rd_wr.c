@@ -29,6 +29,7 @@
 #define VAPIC_DEBUG_WR_MASK             0ULL
 #define VAPIC_PROD_RD_MASK              0ULL
 #define VAPIC_PROD_WR_MASK              0ULL
+#define POSTED_INTER_DESCRIPTOR_SIZE    64   //64 Byte alignment for Posted-interrupt descriptor address
 
 
 /** @brief Helper function to get TDVPS field information
@@ -536,7 +537,7 @@ _STATIC_INLINE_ api_error_type read_or_write_tdvps_field(tdcs_t* tdcs_ptr,
             if (field_code.class_code == TDVPS_VMCS_CLASS_CODE &&
                     field_code.vmcs_field_code.raw == VMX_POSTED_INTERRUPT_DESCRIPTOR_ADDRESS_FULL_ENCODE)
             {
-                return_val = shared_hpa_check((pa_t)wr_value, 64); //64 Byte alignment for Posted-interrupt descriptor address
+                return_val = shared_hpa_check((pa_t)wr_value, POSTED_INTER_DESCRIPTOR_SIZE);
             }
             else
             {

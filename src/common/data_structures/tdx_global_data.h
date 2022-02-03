@@ -291,7 +291,7 @@ typedef struct tdx_module_global_s
     // Hash method buffers for IPP crypto lib - should be initialized before usage
     hash_method_t sha384_method;
 
-    //Array of TDMR info
+    // Array of TDMR info
     tdmr_info_entry_t tdmr_info_copy[MAX_TDMRS];
 
 #ifdef DEBUGFEATURE_TDX_DBG_TRACE

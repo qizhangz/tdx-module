@@ -248,7 +248,6 @@ api_error_type tdh_vp_init(uint64_t target_tdvpr_pa, uint64_t td_vcpu_rcx)
      *  Since the pages are initialized to 0 on TDHVPCREATE/TDVPADDCX,
      *  VAPIC page is already 0.
      */
-
     vmcs_pa = set_hkid_to_pa((pa_t)tdvps_ptr->management.tdvps_pa[TDVPS_VMCS_PAGE_INDEX], curr_hkid);
 
     /**

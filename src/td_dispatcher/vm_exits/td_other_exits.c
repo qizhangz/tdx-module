@@ -216,13 +216,6 @@ void td_cr_access_exit(vmx_exit_qualification_t vm_exit_qualification)
                         return;
                     }
 
-                    if ((tdcs_p->executions_ctl_fields.attributes.perfmon == 0) && (cr4.pce == 1))
-                    {
-                        TDX_LOG("MOV to CR4 - PCE not supported (0x%lx) - #GP", value);
-                        inject_gp(0);
-                        return;
-                    }
-
                     // If the guest attempted to set CR4.CET while CR0.WP is 0, throw a #GP(0)
                     ia32_vmread(VMX_GUEST_CR0_ENCODE, &(cr0.raw));
                     if ((cr4.cet == 1) && (cr0.wp == 0))

@@ -1,4 +1,4 @@
-// Intel Proprietary 
+// Intel Proprietary
 // 
 // Copyright 2021 Intel Corporation All Rights Reserved.
 // 
@@ -45,10 +45,11 @@ const cpuid_lookup_t cpuid_lookup[MAX_NUM_CPUID_LOOKUP] = {
   },
   { // ENTRY_NUM = 5 
   .leaf_subleaf = {.leaf = 0x7, .subleaf = 0x0},
-  .verify_mask = { .eax = 0xffffffff, .ebx = 0x21940803, .ecx = 0x91000000, .edx = 0xe4080000 },
-  .verify_value = { .eax = 0x1, .ebx = 0x21940803, .ecx = 0x91000000, .edx = 0xe4080000 },
-  .verify_same = { .eax = 0xffffffff, .ebx = 0xffffbffb, .ecx = 0xbfc17f6f, .edx = 0xffebffff },
-  .fixed0_or_dynamic = { .ebx = 0x4006, .ecx = 0x603e8010, .edx = 0x223ac3 }
+  .verify_mask = { .ebx = 0x21940803, .ecx = 0x91000000, .edx = 0xe4080000 },
+  .verify_value = { .ebx = 0x21940803, .ecx = 0x91000000, .edx = 0xe4080000 },
+  .verify_same = { .ebx = 0xffffbffb, .ecx = 0xbfc17f6f, .edx = 0xffebffff },
+  .fixed1 = { .eax = 0x1 },
+  .fixed0_or_dynamic = { .eax = 0xfffffffe, .ebx = 0x4006, .ecx = 0x603e8010, .edx = 0x223ac3 }
   },
   { // ENTRY_NUM = 6 
   .leaf_subleaf = {.leaf = 0x0, .subleaf = 0xffffffff},

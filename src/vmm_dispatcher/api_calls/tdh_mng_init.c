@@ -194,9 +194,10 @@ static api_error_type read_and_set_td_configurations(tdcs_t * tdcs_ptr,
         return_val = api_error_with_operand_id(TDX_OPERAND_INVALID, OPERAND_ID_TSC_FREQUENCY);
         goto EXIT;
     }
+    tdcs_ptr->executions_ctl_fields.tsc_frequency = *virt_tsc_freq;
 
     // We read TSC below.  Compare IA32_TSC_ADJUST to the value sampled on TDHSYSINIT
-    // to help make sure the host VMM doesn't play any trick on us.
+    // to make sure the host VMM doesn't play any trick on us.
     if (ia32_rdmsr(IA32_TSC_ADJ_MSR_ADDR) != tdx_global_data_ptr->plt_common_config.ia32_tsc_adjust)
     {
         return_val = api_error_with_operand_id(TDX_INCONSISTENT_MSR, IA32_TSC_ADJ_MSR_ADDR);
@@ -560,19 +561,11 @@ api_error_type tdh_mng_init(uint64_t target_tdr_pa, uint64_t target_td_params_pa
      */
     uint16_t virt_tsc_freq;
 
-#if defined(SPR_BUILD)
     return_val = read_and_set_td_configurations(tdcs_ptr,
                                                 td_params_ptr,
                                                 MAX_PA,
                                                 tdr_ptr->management_fields.tdcx_pa[SEPT_ROOT_PAGE_INDEX],
                                                 &virt_tsc_freq);
-#else
-    return_val = read_and_set_td_configurations(tdcs_ptr,
-                                                td_params_ptr,
-                                                global_data_ptr->max_pa,
-                                                tdr_ptr->management_fields.tdcx_pa[SEPT_ROOT_PAGE_INDEX],
-                                                &virt_tsc_freq);
-#endif
 
     if (return_val != TDX_SUCCESS)
     {
@@ -613,6 +606,7 @@ api_error_type tdh_mng_init(uint64_t target_tdr_pa, uint64_t target_td_params_pa
     }
 
     load_xmms_from_buffer(xmms);
+    basic_memset_to_zero(xmms, sizeof(xmms));
 
     // Zero the RTMR hash values
     basic_memset_to_zero(tdcs_ptr->measurement_fields.rtmr, (SIZE_OF_SHA384_HASH_IN_QWORDS<<3)*NUM_RTMRS);

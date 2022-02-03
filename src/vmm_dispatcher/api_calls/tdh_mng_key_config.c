@@ -8,7 +8,7 @@
 // of merchantability, non-infringement, title, or fitness for a particular purpose.
 
 /**
- * @file tdh_key_config
+ * @file tdh_mng_key_config
  * @brief TDHKEYCONFIG API handler
  */
 #include "tdx_vmm_api_handlers.h"
@@ -24,7 +24,7 @@
 #include "accessors/ia32_accessors.h"
 
 
-api_error_type tdh_key_config(uint64_t target_tdr_pa)
+api_error_type tdh_mng_key_config(uint64_t target_tdr_pa)
 {
     // global data
     tdx_module_global_t * global_data = get_global_data();

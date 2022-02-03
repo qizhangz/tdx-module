@@ -7,9 +7,9 @@
 // The Materials are provided “as is,” without any express or implied warranty of any kind including warranties
 // of merchantability, non-infringement, title, or fitness for a particular purpose.
 
-#ifndef PERF_MEAS_UTILS_H
-#define PERF_MEAS_UTILS_H
+/**
+ * @file crypto_stubs.c
+ * @brief Crypto API stubs
+ */
 
 
-
-#endif // PERF_MEAS_UTILS_H

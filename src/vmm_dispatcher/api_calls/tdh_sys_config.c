@@ -243,7 +243,7 @@ static bool_t is_pamt_overlaps_available_area(tdmr_info_entry_t* tdmr_info_ptr,
 
         // At this point PAMT areas, TDMR reserved areas, and TDMR area
         // were already checked to not cause integer overflow
-        if (is_overlap(pamt_base, pamt_size, available_start, available_size))
+        if ((available_size > 0) && is_overlap(pamt_base, pamt_size, available_start, available_size))
         {
             TDX_ERROR("TDMR: PAMT [0x%llx - 0x%llx] overlaps with available area [0x%llx - 0x%llx]\n",
                 pamt_base, pamt_base + pamt_size, available_start, available_end);

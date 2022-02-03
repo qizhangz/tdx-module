@@ -41,6 +41,28 @@ tdx_tdexit_entry_point:
     movq %r14,  %gs:TDX_LOCAL_DATA_TD_GPRS_STATE_OFFSET+112
     movq %r15,  %gs:TDX_LOCAL_DATA_TD_GPRS_STATE_OFFSET+120
 
+	/*
+	 * clear TD GPRs on entry to the TDX module
+	 */
+    xor %rax, %rax
+    xor %rcx, %rcx
+    xor %rdx, %rdx
+    xor %rbx, %rbx
+    xor %rbp, %rbp
+    xor %rsi, %rsi
+    xor %rdi, %rdi
+    xor %r8, %r8
+    xor %r9, %r9
+    xor %r10, %r10
+    xor %r11, %r11
+    xor %r12, %r12
+    xor %r13, %r13
+    xor %r14, %r14
+    xor %r15, %r15
+
+    // Protection against speculative attacks on GPRs
+    lfence
+
     /**
      * Call the VMM API dispatcher
      */

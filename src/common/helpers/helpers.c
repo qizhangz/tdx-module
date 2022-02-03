@@ -57,7 +57,6 @@ api_error_code_e program_mktme_keys(uint16_t hkid)
     }
 
 	// Execute the PCONFIG instruction with the updated struct and return
-
 	pconfig_return_code = ia32_mktme_key_program(&mktme_key_program);
 
     if (pconfig_return_code != MKTME_PROG_SUCCESS)
@@ -513,17 +512,7 @@ bool_t check_gpa_validity(
     }
 
     // Bits higher then MAX_PA except shared bit must be zero (bits above SHARED bit must be zero)
-#ifdef SPR_BUILD
     if ((gpa.raw & ~BITS(MAX_PA-1,0)) != 0)
-#else
-    uint64_t sharedbit = gpa_width-1;
-    uint64_t must_be_zero_bits_mask = ~BITS(get_global_data()->max_pa-1,0) | ~BITS(sharedbit,0);
-    if (sharedbit > get_global_data()->max_pa-1)
-    {
-        must_be_zero_bits_mask &= ~BIT(sharedbit); // Exclusion of shared bit from the mask
-    }
-    if ((gpa.raw & must_be_zero_bits_mask) != 0)
-#endif
     {
         return false;
     }
@@ -534,22 +523,6 @@ bool_t check_gpa_validity(
     {
         return false;
     }
-
-    // If the CPU's physical-address width (MAXPA) is less than 52,
-    // the CPU will normally treat bits 51:MAXPA in a guest-physical address (GPA) as reserved.
-    // However, when a TD is operating and GPAW > MAXPA,
-    // GPA bit GPAW-1 will not be treated as reserved;
-    // GPA bits GPAW-2:MAXPA will be treated as reserved (assuming GPAW > MAXPA+1).
-#ifndef SPR_BUILD
-    if (get_global_data()->max_pa < MAX_PA)
-    {
-        if (((uint64_t)gpa_width > get_global_data()->max_pa + 1) &&
-                (gpa.raw & BITS(gpa_width-2, get_global_data()->max_pa)))
-        {
-            return false;
-        }
-    }
-#endif
 
     return true;
 }
@@ -1213,12 +1186,6 @@ cr_write_status_e write_guest_cr4(uint64_t value, tdcs_t* tdcs_p, tdvps_t* tdvps
     if ((tdcs_p->executions_ctl_fields.attributes.pks == 0) && (cr4.pks == 1))
     {
         TDX_LOG("MOV to CR4 - PKS not supported (0x%lx) - #GP", value);
-        return CR_WR_GP;
-    }
-
-    if ((tdcs_p->executions_ctl_fields.attributes.perfmon == 0) && (cr4.pce == 1))
-    {
-        TDX_LOG("MOV to CR4 - PCE not supported (0x%lx) - #GP", value);
         return CR_WR_GP;
     }
 

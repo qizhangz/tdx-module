@@ -1,4 +1,4 @@
-// Intel Proprietary 
+// Intel Proprietary
 // 
 // Copyright 2021 Intel Corporation All Rights Reserved.
 // 
@@ -34,7 +34,7 @@ typedef enum
     TDH_MEM_PAGE_RELOCATE         = 5,
     TDH_MEM_PAGE_AUG_LEAF         = 6,
     TDH_MEM_RANGE_BLOCK_LEAF      = 7,
-    TDH_KEY_CONFIG_LEAF           = 8,
+    TDH_MNG_KEY_CONFIG_LEAF       = 8,
     TDH_MNG_CREATE_LEAF           = 9,
     TDH_VP_CREATE_LEAF            = 10,
     TDH_MNG_RD_LEAF               = 11,

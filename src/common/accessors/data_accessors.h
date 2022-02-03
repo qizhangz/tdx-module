@@ -85,10 +85,10 @@ _STATIC_INLINE_ uint64_t get_current_thread_num(void)
 _STATIC_INLINE_ tdx_module_local_t* calculate_local_data(void)
 {
     void* local_data_addr;
-    _ASM_ ("rdgsbase %0"
-               :"=r"(local_data_addr)
-               :
-               :"cc");
+    _ASM_VOLATILE_ ("rdgsbase %0"
+                    :"=r"(local_data_addr)
+                    :
+                    :"cc");
 
     return (tdx_module_local_t*)local_data_addr;
 }
@@ -98,10 +98,10 @@ _STATIC_INLINE_ tdx_module_local_t* calculate_local_data(void)
 _STATIC_INLINE_ sysinfo_table_t* calculate_sysinfo_table(void)
 {
     void* sysinfo_table_addr;
-    _ASM_ ("rdfsbase %0"
-               :"=r"(sysinfo_table_addr)
-               :
-               :"cc");
+    _ASM_VOLATILE_ ("rdfsbase %0"
+                    :"=r"(sysinfo_table_addr)
+                    :
+                    :"cc");
 
     return (sysinfo_table_t*)sysinfo_table_addr;
 }
@@ -127,13 +127,12 @@ _STATIC_INLINE_ tdx_module_global_t* calculate_global_data(sysinfo_table_t* sysi
 // Must be first thing to do before accessing local/global data or sysinfo table
 _STATIC_INLINE_ tdx_module_local_t* init_data_fast_ref_ptrs(void)
 {
-    tdx_module_local_t* local_data = get_local_data();
+    tdx_module_local_t* local_data = calculate_local_data();
 
-    IF_RARE (!local_data)
+    IF_RARE (!local_data->local_data_fast_ref_ptr)
     {
-        local_data = calculate_local_data();
-        local_data->local_data_fast_ref_ptr = local_data;
-        local_data->sysinfo_fast_ref_ptr = calculate_sysinfo_table();
+        local_data->local_data_fast_ref_ptr  = local_data;
+        local_data->sysinfo_fast_ref_ptr     = calculate_sysinfo_table();
         local_data->global_data_fast_ref_ptr = calculate_global_data((sysinfo_table_t*)
                                                     local_data->sysinfo_fast_ref_ptr);
     }

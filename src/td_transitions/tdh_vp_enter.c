@@ -312,7 +312,7 @@ api_error_type tdh_vp_enter(uint64_t target_tdvpr_pa)
 
 
     // We read TSC below.  Compare IA32_TSC_ADJUST to the value sampled on TDHSYSINIT
-    // to help make sure the host VMM doesn't play any trick on us.
+    // to make sure the host VMM doesn't play any trick on us.
     IF_RARE (ia32_rdmsr(IA32_TSC_ADJ_MSR_ADDR) != global_data_ptr->plt_common_config.ia32_tsc_adjust)
     {
         return_val = api_error_with_operand_id(TDX_INCONSISTENT_MSR, IA32_TSC_ADJ_MSR_ADDR);

@@ -110,6 +110,7 @@ api_error_type tdg_mr_rtmr_extend(uint64_t extension_data_gpa, uint64_t index)
                                           tdcs_p->measurement_fields.rtmr[index].qwords);
 
     load_xmms_from_buffer(xmms);
+    basic_memset_to_zero(xmms, sizeof(xmms));
 
     if (sha_error_code != 0)
     {

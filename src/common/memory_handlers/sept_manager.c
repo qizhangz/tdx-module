@@ -58,11 +58,6 @@ _STATIC_INLINE_ bool_t is_secure_ept_entry_misconfigured(ia32e_sept_t* pte, ept_
     pa_t hpa;
     hpa.raw = pte->raw & IA32E_PAGING_STRUCT_ADDR_MASK;
 
-    if (!is_pa_smaller_than_max_pa(hpa.raw))
-    {
-        return true;
-    }
-
     if ((pte->fields_ps.r == 0) && (pte->fields_ps.w == 1))
     {
         return true;

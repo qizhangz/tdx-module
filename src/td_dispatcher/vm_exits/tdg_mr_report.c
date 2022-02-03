@@ -160,6 +160,7 @@ api_error_type tdg_mr_report(uint64_t report_struct_gpa, uint64_t additional_dat
     }
 
     load_xmms_from_buffer(xmms);
+    basic_memset_to_zero(xmms, sizeof(xmms));
 
     // Use SEAMREPORT to create REPORTMACSTRUCT & SEAM measurements (if applicable)
     ia32_seamops_seamreport(&temp_tdg_mr_report,
